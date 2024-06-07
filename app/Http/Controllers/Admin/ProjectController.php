@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Type;
+use App\Models\Technology;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -22,6 +23,7 @@ class ProjectController extends Controller
         // dd('ciao');
         $projects = Project::all();
 
+
         return view('admin.projects.index', compact('projects'));
     }
 
@@ -33,8 +35,9 @@ class ProjectController extends Controller
     public function create()
     {
         $types = Type::all();
+        $technologies = Technology::all();
         // dd($types);
-        return view('admin.projects.create', compact('types'));
+        return view('admin.projects.create', compact('types','technologies'));
     }
 
     /**
@@ -51,7 +54,8 @@ class ProjectController extends Controller
                 'client_name' => 'required|min:5|max:20',
                 'summary' => 'nullable|min:10',
                 'cover_image' => 'nullable|image|max:512',
-                'type_id' => 'nullable|exists:types,id'
+                'type_id' => 'nullable|exists:types,id',
+                'technologies' => 'nullable|exists:technologies,id'
             ]
         );
 
@@ -71,10 +75,17 @@ class ProjectController extends Controller
         // ----------------------------------------------------------
         // dd($formData);
         $newProject = new Project();
+        // fa passare solo gli attributi fillable scritti dentro model 
         $newProject->fill($formData);
         // o si mette dopo che popolo $newProject senno la variabile è vuota oopure metto formData['name] al posto di $newProject->name
         $newProject->slug = Str::slug($newProject->name, '-');
         $newProject->save();
+
+        // Attacca i technologies scelti dall'utente al post creato
+        // Questa condizione verifica se il campo technologies è presente nella richiesta HTTP (inviata dal modulo del form)
+        if($request->has('technologies')) {
+            $newProject->technologies()->attach($formData['technologies']);
+        }
 
         session()->flash('project_create', true);
 
@@ -87,8 +98,9 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Project $project)
+    public function show(Project $project )
     {
+        // dd($project->technologies);
         // $project = Project::findOfFail($id); al  posto suo utiliziamo delle Dependency Injection Un design pattern che permette di iniettare le dipendenze necessarie in un componente, piuttosto che farle creare o trovare autonomamente.
         $data = [
             'project' => $project
@@ -105,8 +117,9 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('admin.projects.edit', compact('project', 'types'));
+        return view('admin.projects.edit', compact('project', 'types','technologies'));
     }
 
     /**
@@ -132,7 +145,8 @@ class ProjectController extends Controller
                 'client_name' => 'required|min:5|max:20',
                 'summary' => 'nullable|min:10',
                 'cover_image' => 'nullable|image|max:512',
-                'type_id' => 'nullable|exists:types,id'
+                'type_id' => 'nullable|exists:types,id',
+                'technologies' => 'nullable|exists:technologies,id'
             ]
         );
 
@@ -155,6 +169,12 @@ class ProjectController extends Controller
 
         $project->slug = Str::slug($formData['name'], '-');
         $project->update($formData);
+
+        if($request->has('technologies')) {
+            $project->technologies()->sync($formData['technologies']);
+        } else {
+            $project->technologies()->detach();
+        }
 
         session()->flash('project_edit', true);
 

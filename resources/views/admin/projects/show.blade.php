@@ -17,6 +17,18 @@
     </div>
 
     <div>
+        <strong>Technologies</strong>:
+        @if (count($project->technologies) > 0)
+            @foreach ($project->technologies as $technology)
+                {{ $technology->name }}@if (!$loop->last),@endif
+            @endforeach
+        @else
+            none
+        @endif
+        {{-- @dump($project->technologies) --}}
+    </div>
+
+    <div>
         <strong>Slug:</strong> {{ $project->slug }}
     </div>
 

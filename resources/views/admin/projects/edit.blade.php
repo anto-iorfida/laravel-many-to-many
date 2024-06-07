@@ -30,6 +30,26 @@
             <div class="alert alert-danger">{{ $message }}</div>
         @enderror
 
+        <div class="mb-3 mt-4">
+            <h5>Tags</h5>
+
+            @foreach ($technologies as $technology)
+                <div class="form-check">
+                    @if ($errors->any())
+                        {{-- se cis sono errori di validazione vuol dire che l'utente ha gia inviato il form quindi controllo l'old --}}
+                        <input class="form-check-input" @checked(in_array($technology->id, old('technologies', []))) type="checkbox" name="technologies[]" value="{{ $technology->id }}" id="technology-{{ $technology->id }}">
+                    @else
+                        {{-- altrimenti vuol dire che stiamo caricando la pagina per la prima volta quindi controlliamo la presenza del technology nella collection che ci arriva dal db --}}
+                        <input class="form-check-input" @checked($project->technologies->contains($technology)) type="checkbox" name="technologies[]" value="{{ $technology->id }}" id="technology-{{ $technology->id }}">
+                    @endif
+                    
+                    <label class="form-check-label" for="technology-{{ $technology->id }}">
+                    {{ $technology->name }}
+                    </label>
+                </div>
+            @endforeach
+        </div>
+
         
         <div class="mb-3">
             <label for="cover_image" class="form-label">Immagine</label>

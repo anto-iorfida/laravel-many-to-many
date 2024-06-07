@@ -14,25 +14,29 @@ return new class extends Migration
     public function up()
     {
         Schema::create('projects_technologies', function (Blueprint $table) {
-           // colonna project_id da aggiungere
-           $table->unsignedBigInteger('project_id');
+            // colonna project_id da aggiungere
+            $table->unsignedBigInteger('project_id');
 
-           $table->foreign('project_id')
-           //questa foreign, specificare colonna della tabella a che fa riferimento
-           ->references('id')
-           //specificare tabella di riferimento
-           ->on('projects')
-           //specifica che, quando un record nella tabella padre viene eliminato, tutti i record associati nella tabella figlio verranno automaticamente eliminati.
-           ->onDelete('cascade');
-            // ??
-           $table->primary('project_id','technology_id');
+            $table->foreign('project_id')
+                //questa foreign, specificare colonna della tabella a che fa riferimento
+                ->references('id')
+                //specificare tabella di riferimento
+                ->on('projects')
+                //specifica che, quando un record nella tabella padre viene eliminato, tutti i record associati nella tabella figlio
+                //  verranno automaticamente eliminati.
+                ->onDelete('cascade');
+            
 
 
-           $table->unsignedBigInteger('technology_id');
-           $table->foreign('technology_id')
-           ->references('id')
-           ->on('technologies')
-           ->onDelete('cascade');
+            $table->unsignedBigInteger('technology_id');
+            $table->foreign('technology_id')
+                ->references('id')
+                ->on('technologies')
+                ->onDelete('cascade');
+
+
+            // aiuta la ricerca
+            $table->primary('project_id', 'technology_id');
         });
     }
 

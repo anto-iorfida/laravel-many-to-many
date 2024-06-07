@@ -4,15 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Technology;
 
 class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'summary', 'slug','client_name','cover_image','type_id'];
+    protected $fillable = ['name', 'summary', 'slug', 'client_name', 'cover_image', 'type_id'];
 
-    public function type(){
+    public function type()
+    {
         return $this->belongsTo(Type::class);
+    }
+
+    // Laravel si aspetterebbe una tabella pivot(ponte) chiamata project_technology (ordine alfabetico dei nomi dei modelli al singolare)
+    //  e colonne chiamate project_id e technology_id. Tuttavia, poiché la tabella pivot non segue questa convenzione (si chiama projects_technologies),
+    //  è necessario specificare questi parametri manualmente per dire a Laravel come trovare le informazioni corrette.
+    public function technologies()
+    {
+        return $this->belongsToMany(Technology::class, 'projects_technologies');
     }
 }
 
